@@ -1,0 +1,17 @@
+Package: ReinforcementLearning
+Type: Package
+Title: ReinforcementLearning
+Version: 0.1.0
+Date: 2022-01-18
+Authors@R: c(person("Quirin","Stier",email="Quirin_Stier@gmx.de",role="aut"),person("Michael","Thrun",email="m.thrun@gmx.net",role=c("aut","cre","cph"),comment=c(ORCID="0000-0001-9542-5543")))
+Maintainer: Quirin Stier <Quirin_Stier@gmx.de>
+Description: Support functions for reinforcement learning based on the Q-learning algorithms of the package reinforcelearn.
+License: GPL-3
+Imports: igraph, plotly, 
+Suggests: reinforcelearn, DataVisualizations
+LinkingTo: 
+Depends: R (>= 3.0)
+LazyLoad: yes
+LazyData: TRUE
+URL: http://www.deepbionics.org
+Encoding: UTF-8

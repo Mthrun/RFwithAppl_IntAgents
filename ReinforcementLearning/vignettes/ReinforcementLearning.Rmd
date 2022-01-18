@@ -1,0 +1,134 @@
+---
+title: "Example of Applying Reinforcement Learning in Grid Worlds"
+author: "Michael C. Thrun"
+date: "`r format(Sys.time(), '%d %b %Y')`"
+output: 
+          html_document:
+            theme: united
+            highlight: tango 
+            toc: true
+            number_sections: true
+            doc_depth: 2
+            toc_float: true
+            dpi: 50
+            fig.width: 6
+            fig.height: 6
+vignette: >
+  %\VignetteIndexEntry{Example of Applying Reinforcement Learning in Grid World}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.align = "center",
+                      message=FALSE,
+                      warning = FALSE,
+                      webgl = TRUE,
+                      dpi=50,
+                      fig.width = 7, 
+                      fig.height = 7,
+                      fig.keep = "all"
+                      )
+```
+
+```{r echo = FALSE}
+if (!requireNamespace("rmarkdown") || !rmarkdown::pandoc_available("1.12.3")) {
+  warning("This vignette requires pandoc version 1.12.3; code will not run in older versions.")
+  knitr::opts_chunk$set(eval = FALSE)
+}
+```
+
+```{r echo = FALSE}
+if (!requireNamespace("reinforcelearn")) {
+  warning("This vignette requires the package reinforcelearn; code will not run without this package.")
+  knitr::opts_chunk$set(eval = FALSE)
+}else{
+  library(reinforcelearn)
+}
+if (!requireNamespace("ReinforcementLearning")) {
+  warning("This vignette requires the package ReinforcementLearning; code will not run without this package.")
+  knitr::opts_chunk$set(eval = FALSE)
+}else{
+  library(ReinforcementLearning)
+}
+```
+
+## Installing "reinforcelearn"
+
+Installing subsequent package reinforcelearn via devtools is shown below.
+Please see [Dumke, 2017] for details of the package. Other usage than gridworlds can be found also in https://github.com/markusdumke/reinforcelearn. 
+
+```{}
+# Install development version from github.
+devtools::install_github("markusdumke/reinforcelearn",dependencies = TRUE)
+```
+
+## Installing "ReinforcementLearning"
+
+Installing package ReinforcementLearning via devtools is shown below.
+
+```{}
+devtools::install_github("mthrun/ReinforcementLearning",dependencies = TRUE)
+```
+
+# Cliff World Example
+Example with a epsilon greedy policy and simple q-learning based on a grid world with 47 states and cliffs.
+
+```{r,webGL = TRUE}
+env = reinforcelearn::makeEnvironment(
+  "gridworld",
+  shape = c(4, 12),
+  cliff.states = c(37:46),
+  goal.states = 47,
+  initial.state = 36,
+  reward.step = -1,
+  discount = 1,
+  reward.cliff = -200,
+  cliff.transition.done = F,
+  cliff.transition.states = 36,
+  diagonal.moves = F
+)
+
+pol = reinforcelearn::makePolicy("epsilon.greedy", epsilon = 0.01)
+alg = reinforcelearn::makeAlgorithm("qlearning", alpha = 0.1)
+agent = reinforcelearn::makeAgent(policy = pol,
+                                  val.fun = "table",
+                                  algorithm = alg)
+Result = reinforcelearn::interact(
+  env,
+  agent,
+  n.episodes = 1000,
+  learn = T,
+  visualize = F
+)
+MyLookupTable = ReinforcementLearning::LookupTable(env, agent, digits = 10) 
+
+```
+
+## Plotting Optimal Policy and States
+we can plot the path the agent takes if the agent applies its learned optimal policy:
+
+```{r,webGL = TRUE,fig.width=12,fig.height=12}
+V = ReinforcementLearning::FindStatesPathOfOptimalPolicy(
+  Qtable = MyLookupTable,
+  GridRows = 4,
+  GridCols = 12,
+  Start = 36,
+  Goal = 47
+)
+PlotStatesAndQstarPath(V$StatesMatrix, V$Traversedstates, V$OptimalPolicy)
+```
+
+## Plotting Q table
+States initialized are equal to zero, meaning that the agent nevered explored these states and action pairs.
+
+Beware: function works currently only if diagonal action are allowed diagonal.moves=TRUE.
+
+```{r,results = "hide",webGL = TRUE,fig.keep="none"}
+#ReinforcementLearning::PlotActionValues(Agent = agent,
+# Environment = env,NumberOfStatesPerRow = 12)
+```
+
+
+# References
+[Dumke, 2017]    Dumke, Marcus: Reinforcement Learning in R (Doctoral dissertation), 2017.
